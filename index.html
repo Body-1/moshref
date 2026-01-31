@@ -26,7 +26,7 @@
         /* إعدادات الخطوط العامة */
         body { 
             font-family: 'Cairo', sans-serif; 
-            background-color: #e2e8f0; 
+            background-color: #e2e8f0;
             height: 100vh;
             overflow: hidden; /* لمنع التمرير المزدوج */
         }
@@ -113,7 +113,8 @@
         @media print {
             @page {
                 size: A4;
-                margin: 0; /* نلغي هوامش المتصفح الافتراضية للتحكم بها يدوياً */
+                margin: 0 !important; /* نلغي هوامش المتصفح الافتراضية للتحكم بها يدوياً */
+                padding: 0 !important;
             }
 
             body {
@@ -145,7 +146,7 @@
                 width: 100%;
                 margin: 0;
                 box-shadow: none;
-                padding: 20mm; /* الهوامش الحقيقية للطباعة */
+                padding: 5mm; /* الهوامش الحقيقية للطباعة */
                 min-height: auto;
                 page-break-after: always;
             }
