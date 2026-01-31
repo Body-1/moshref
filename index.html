@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>المحرر العلمي الاحترافي للطباعة</title>
+    
+    <!-- Tailwind CSS (للتصميم العام) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- KaTeX (للرياضيات والكيمياء) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/mhchem.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+    
+    <!-- Marked (لتحويل Markdown إلى HTML) -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* إعدادات الخطوط العامة */
+        body { 
+            font-family: 'Cairo', sans-serif; 
+            background-color: #e2e8f0; 
+            height: 100vh;
+            overflow: hidden; /* لمنع التمرير المزدوج */
+        }
+
+        /* تخصيص منطقة المعاينة لتشبه ورقة A4 */
+        .a4-page {
+            width: 210mm;
+            min-height: 297mm;
+            padding: 20mm;
+            margin: 0 auto;
+            background: white;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+            font-family: 'Amiri', serif; /* خط مناسب للطباعة والكتب */
+            font-size: 14pt;
+            line-height: 1.6;
+            color: #1a1a1a;
+            position: relative;
+        }
+
+        /* تنسيقات المحتوى داخل الورقة */
+        .content-area h1 {
+            font-family: 'Cairo', sans-serif;
+            font-size: 24pt;
+            font-weight: 700;
+            color: #1e3a8a;
+            border-bottom: 2px solid #1e3a8a;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+            margin-top: 0;
+        }
+
+        .content-area h2 {
+            font-family: 'Cairo', sans-serif;
+            font-size: 18pt;
+            font-weight: 600;
+            color: #1e40af;
+            margin-top: 25px;
+            margin-bottom: 15px;
+            background-color: #f0f9ff;
+            padding: 5px 10px;
+            border-right: 4px solid #1e40af;
+            border-radius: 4px;
+        }
+
+        .content-area p {
+            margin-bottom: 12px;
+            text-align: justify;
+        }
+
+        .content-area ul, .content-area ol {
+            margin-right: 25px;
+            margin-bottom: 15px;
+        }
+        
+        .content-area ul { list-style-type: disc; }
+        .content-area ol { list-style-type: decimal; }
+
+        .content-area li {
+            margin-bottom: 5px;
+        }
+
+        .content-area blockquote {
+            border-right: 4px solid #cbd5e1;
+            background-color: #f8fafc;
+            padding: 10px 15px;
+            margin: 15px 0;
+            font-style: italic;
+            color: #475569;
+        }
+
+        /* تنسيقات KaTeX */
+        .katex { 
+            font-size: 1.1em !important; 
+            direction: ltr !important; 
+            unicode-bidi: embed;
+        }
+        .katex-display {
+            margin: 1em 0;
+            overflow-x: auto;
+            overflow-y: hidden;
+        }
+
+        /* --- إعدادات الطباعة الدقيقة (The Magic) --- */
+        @media print {
+            @page {
+                size: A4;
+                margin: 0; /* نلغي هوامش المتصفح الافتراضية للتحكم بها يدوياً */
+            }
+
+            body {
+                background: white;
+                height: auto;
+                overflow: visible;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+
+            /* إخفاء واجهة المستخدم */
+            header, .editor-sidebar, .no-print {
+                display: none !important;
+            }
+
+            /* إعداد منطقة الطباعة */
+            .preview-container {
+                padding: 0;
+                margin: 0;
+                width: 100%;
+                height: auto;
+                background: white;
+                overflow: visible;
+            }
+
+            .a4-page {
+                width: 100%;
+                margin: 0;
+                box-shadow: none;
+                padding: 20mm; /* الهوامش الحقيقية للطباعة */
+                min-height: auto;
+                page-break-after: always;
+            }
+
+            /* منع انقصاص العناصر */
+            h1, h2, h3 { page-break-after: avoid; }
+            p, blockquote { page-break-inside: avoid; orphans: 3; widows: 3; }
+            .katex-display { page-break-inside: avoid; }
+            img { max-width: 100%; page-break-inside: avoid; }
+        }
+
+        /* شريط التمرير المخصص */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #888; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #555; }
+    </style>
+</head>
+<body class="flex flex-col">
+
+    <!-- الرأس (يختفي عند الطباعة) -->
+    <header class="bg-indigo-900 text-white p-3 shadow-lg flex justify-between items-center z-50 no-print h-16 shrink-0">
+        <div class="flex items-center gap-3">
+            <div class="bg-indigo-700 p-2 rounded-lg">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+                </svg>
+            </div>
+            <div>
+                <h1 class="font-bold text-lg leading-tight">المحرر العلمي الذكي</h1>
+                <p class="text-xs text-indigo-300 font-light">مجهز للطباعة A4 - الإصدار المحمي</p>
+            </div>
+        </div>
+        <div class="flex gap-2">
+            <button onclick="insertSample()" class="text-xs bg-indigo-800 hover:bg-indigo-700 px-3 py-2 rounded transition">
+                مثال جاهز
+            </button>
+            <button onclick="window.print()" class="bg-emerald-500 hover:bg-emerald-600 text-white px-6 py-2 rounded-lg font-bold shadow-md transition flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                </svg>
+                طباعة / PDF
+            </button>
+        </div>
+    </header>
+
+    <!-- منطقة العمل الرئيسية -->
+    <main class="flex flex-1 overflow-hidden">
+        
+        <!-- المحرر (على اليمين) -->
+        <div class="editor-sidebar w-5/12 flex flex-col border-l border-gray-300 bg-white shadow-md z-40">
+            <div class="bg-gray-100 p-2 text-xs text-gray-600 font-bold border-b flex justify-between items-center px-4">
+                <span>اكتب هنا (يدعم Markdown و LaTeX)</span>
+                <button onclick="document.getElementById('editor').value=''; render();" class="text-red-500 hover:text-red-700">مسح المحتوى</button>
+            </div>
+            <textarea id="editor" class="flex-1 w-full p-5 resize-none focus:outline-none focus:bg-slate-50 font-mono text-sm leading-relaxed text-slate-800" placeholder="ابدأ الكتابة هنا..."></textarea>
+            <div class="bg-indigo-50 p-2 text-[10px] text-indigo-800 text-center border-t border-indigo-100">
+                تلميح: اكتب \ce{H2O} للكيمياء، أو \frac{1}{2} للكسور
+            </div>
+        </div>
+
+        <!-- المعاينة (على اليسار) -->
+        <div class="preview-container w-7/12 bg-slate-500 overflow-y-auto p-8 flex justify-center">
+            <!-- ورقة A4 -->
+            <div id="print-area" class="a4-page">
+                <div id="preview" class="content-area"></div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const editor = document.getElementById('editor');
+        const preview = document.getElementById('preview');
+
+        // مخزن مؤقت للمعادلات
+        let mathCache = [];
+
+        // 1. دالة الحماية: تعزل المعادلات وتضع مكانها رموزاً مؤقتة
+        function protectMath(text) {
+            mathCache = []; // تصفية المخزن
+            
+            // التعبيرات النمطية
+            // 1. المعادلات داخل دولارات (الأولوية القصوى)
+            const standardRegex = /(\$\$[\s\S]*?\$\$|\$(?! )[\s\S]*?(?<! )\$|\\\[[\s\S]*?\\\]|\\\([\s\S]*?\\\))/g;
+            
+            // 2. الأوامر العلمية المنفردة (بدون دولارات)
+            const scientificRegex = /(\\(?:bm|ce|frac|sqrt|mathbf|boldsymbol|int|sum|vec|overline|hat)\s*\{(?:[^{}]|\{[^{}]*\})*\})/g;
+
+            // الخطوة 1: عزل المعادلات القياسية $$...$$
+            text = text.replace(standardRegex, (match) => {
+                mathCache.push(match);
+                return `%%%MATH${mathCache.length - 1}%%%`;
+            });
+
+            // الخطوة 2: عزل الأوامر العلمية المباشرة وتغليفها
+            text = text.replace(scientificRegex, (match) => {
+                // نتأكد أنها ليست جزءاً من نص تم استبداله بالفعل
+                if (match.includes('%%%MATH')) return match;
+                
+                // إضافة دولارات للحماية وتسهيل المعالجة لاحقاً
+                const wrapped = `$ ${match} $`; 
+                mathCache.push(wrapped);
+                return `%%%MATH${mathCache.length - 1}%%%`;
+            });
+
+            return text;
+        }
+
+        // 2. دالة الاستعادة: تعيد المعادلات مكان الرموز
+        function restoreMath(text) {
+            return text.replace(/%%%MATH(\d+)%%%/g, (match, index) => {
+                return mathCache[index];
+            });
+        }
+
+        // دالة العرض الرئيسية
+        function render() {
+            let rawText = editor.value;
+            
+            // 1. حماية المعادلات من عبث Marked
+            const protectedText = protectMath(rawText);
+
+            // 2. تحويل Markdown إلى HTML (النص المحمي لن يتأثر)
+            const htmlWithPlaceholders = marked.parse(protectedText, { breaks: true });
+
+            // 3. استعادة المعادلات الأصلية داخل HTML
+            const finalHtml = restoreMath(htmlWithPlaceholders);
+
+            // 4. وضع النتيجة في الصفحة
+            preview.innerHTML = finalHtml;
+
+            // 5. تشغيل KaTeX أخيراً ليعالج المعادلات السليمة
+            try {
+                renderMathInElement(preview, {
+                    delimiters: [
+                        {left: "$$", right: "$$", display: true},
+                        {left: "$", right: "$", display: false},
+                        {left: "\\(", right: "\\)", display: false},
+                        {left: "\\[", right: "\\]", display: true}
+                    ],
+                    throwOnError: false,
+                    errorColor: '#cc0000',
+                    ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"]
+                });
+            } catch (e) {
+                console.error("KaTeX Render Error:", e);
+            }
+        }
+
+        // إضافة نص افتراضي للتجربة
+        function insertSample() {
+            const sample = `# تقرير التجربة المعملية
+## 1. المقدمة
+في هذه التجربة، سنقوم بتحليل تفاعل **الاحتراق** واحتساب الطاقة الناتجة. المعادلة الكيميائية للتفاعل هي:
+
+\\ce{CH4 + 2O2 -> CO2 + 2H2O}
+
+## 2. الحسابات الرياضية
+لنفترض أن دالة الطاقة تعطى بالعلاقة التالية:
+$$ E = mc^2 + \\frac{1}{2}mv^2 $$
+
+حيث $m$ هي الكتلة. لحساب التكامل نستخدم:
+\\int_{0}^{\\infty} e^{-x^2} dx = \\frac{\\sqrt{\\pi}}{2}
+
+## 3. النتائج
+- تم ملاحظة تصاعد غاز \\ce{CO2}.
+- المتجه الناتج للقوة هو \\vec{F} = m \\mathbf{a}.
+
+> ملاحظة: يجب توخي الحذر عند التعامل مع المواد الكيميائية.`;
+            
+            editor.value = sample;
+            render();
+        }
+
+        // تشغيل المعالجة عند الكتابة
+        editor.addEventListener('input', render);
+
+        // التشغيل الأولي
+        window.onload = () => {
+            if(!editor.value) insertSample();
+            else render();
+        };
+    </script>
+</body>
+</html>
